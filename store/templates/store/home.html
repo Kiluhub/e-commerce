@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Store</title>
+
+    <!-- ✅ Bootstrap 5 CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{% static 'store/style.css' %}">
+    {% if product.id %}
+    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-sm btn-outline-primary">Add to Cart</a>
+    {% endif %}
+  
+    <!-- ✅ Minimal CSS to push footer down -->
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+        footer {
+            margin-top: auto;
+            position: relative;
+            top: 100%;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- ✅ NAVBAR (header) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">MyStore</a>
+
+            <form class="d-flex me-auto ms-3" role="search" style="width: 50%;">
+                <input class="form-control me-2" type="search" placeholder="Search products..." aria-label="Search">
+                <button class="btn btn-outline-light" type="submit">Search</button>
+            </form>
+
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item me-3">
+                    <a class="nav-link" href="{% url 'view_cart' %}">Cart 🛒</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                        Account
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{% url 'login' %}">Login</a></li>
+                        <li><a class="dropdown-item" href="{% url 'register' %}">Register</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- ✅ BANNER AREA -->
+    <div class="container my-4">
+        <div id="bannerCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+                {% for banner in banners %}
+                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                    <a href="{{ banner.link }}">
+                        <img src="{{ banner.image.url }}" class="d-block w-100" alt="{{ banner.title }}">
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            <button class="carousel-control-prev" type="button" data-bs-target="#bannerCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#bannerCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon"></span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ✅ PRODUCT LISTING -->
+    <div class="container my-4 products-section" style="flex: 1;">
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in products %}
+            <div class="col">
+                <div class="card h-100 d-flex flex-column">
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" style="height: 250px; object-fit: contain;">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title">{{ product.name }}</h5>
+                        <p class="card-text">{{ product.description }}</p>
+                        <div class="mt-auto">
+                            <p class="card-text mb-2"><strong>${{ product.price }}</strong></p>
+                            <a href="{% url 'add_to_cart' product.id %}" class="btn btn-sm btn-outline-primary w-100">Add to Cart</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ✅ FOOTER -->
+    <footer class="bg-dark text-white mt-5 p-4 text-center">
+        &copy; 2025 MyStore. All rights reserved.
+    </footer>
+
+</body>
+</html>
