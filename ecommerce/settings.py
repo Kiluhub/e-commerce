@@ -82,8 +82,12 @@ USE_TZ = True
 
 # ✅ Static files (CSS, JS, etc.)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']  # Used in development
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',            # Global static directory (optional)
+    BASE_DIR / 'store' / 'static',  # ✅ App-specific static directory
+]
 STATIC_ROOT = BASE_DIR / 'staticfiles'    # Used for collectstatic on Render
+
 
 # ✅ Media files (product images, uploads)
 MEDIA_URL = '/media/'
