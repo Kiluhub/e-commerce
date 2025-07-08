@@ -60,7 +60,10 @@ WSGI_APPLICATION = 'ecommerce.wsgi.application'
 
 # ✅ Use dj_database_url for PostgreSQL (Render) or default to SQLite
 DATABASES = {
-    'default': dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    'default': dj_database_url.config(
+        default='postgresql://ecommerce_db_l0gy_user:X2j20Madu3QRmeoBzOF4EBdJ1nLH4Dyx@dpg-d1mj6763jp1c73eumldg-a.oregon-postgres.render.com/ecommerce_db_l0gy',
+        conn_max_age=600
+    )
 }
 
 # Password validation
