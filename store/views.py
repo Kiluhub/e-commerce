@@ -9,16 +9,23 @@ from django.http import HttpResponse
 from django.utils import timezone
 import requests
 import base64
-import datetime
 
+# =======================
 # HOME PAGE
+# =======================
 @login_required
 def home(request):
     products = Product.objects.all()
     banners = Banner.objects.all()
-    return render(request, 'store/home.html', {'products': products, 'banners': banners})
+    return render(request, 'store/home.html', {
+        'products': products,
+        'banners': banners
+    })
 
+
+# =======================
 # ADD TO CART
+# =======================
 @login_required
 def add_to_cart(request, product_id):
     cart = request.session.get('cart', {})
@@ -32,7 +39,10 @@ def add_to_cart(request, product_id):
     request.session['cart'] = cart
     return redirect('home')
 
+
+# =======================
 # REMOVE FROM CART
+# =======================
 @login_required
 def remove_from_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
@@ -40,7 +50,10 @@ def remove_from_cart(request, product_id):
     cart.remove(product)
     return redirect('view_cart')
 
+
+# =======================
 # VIEW CART
+# =======================
 @login_required
 def view_cart(request):
     cart = request.session.get('cart', {})
@@ -66,7 +79,10 @@ def view_cart(request):
         'total': total
     })
 
+
+# =======================
 # LOGIN VIEW
+# =======================
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -82,7 +98,10 @@ def login_view(request):
 
     return render(request, 'store/login.html', {'form': form})
 
+
+# =======================
 # REGISTER VIEW
+# =======================
 def register_view(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
@@ -97,23 +116,30 @@ def register_view(request):
 
     return render(request, 'store/register.html', {'form': form})
 
+
+# =======================
 # PAYMENTS PAGE VIEW
+# =======================
 @login_required
 def payments_page(request):
     amount = request.GET.get('amount', 0)
     return render(request, 'store/payments.html', {'amount': amount})
 
-# STK PUSH PAYMENT VIEW
+
+# =======================
+# SAFARICOM STK PUSH
+# =======================
 @login_required
 def stk_push(request):
     if request.method == 'POST':
         phone = request.POST.get('phone')
         amount = request.POST.get('amount')
 
-        # Step 1: Get access token
+        # Access token
         consumer_key = 'b5dnlJGefptAf1qo3t8LM8R6EnKVxvmPpyKchFeuuJetZAK5'
         consumer_secret = 'MgGMUnzC3Saj4E8WT8L3CPox9rqltCRASOztZlAeZdyIQWP5ApqyNfPsMtteBgws'
-        auth_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+        auth_url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
+
         try:
             r = requests.get(auth_url, auth=(consumer_key, consumer_secret))
             r.raise_for_status()
@@ -124,7 +150,7 @@ def stk_push(request):
         if not access_token:
             return HttpResponse("Access token is missing or invalid", status=400)
 
-        # Step 2: Prepare STK push payload
+        # Payload
         timestamp = timezone.now().strftime('%Y%m%d%H%M%S')
         shortcode = '174379'
         passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919'
@@ -144,21 +170,20 @@ def stk_push(request):
             "PartyA": phone,
             "PartyB": shortcode,
             "PhoneNumber": phone,
-            "CallBackURL": "https://yourdomain.com/callback/",
+            "CallBackURL": "https://infinity-link.onrender.com/mpesa/callback/",
             "AccountReference": "Test123",
             "TransactionDesc": "Test Payment"
         }
 
-        # Step 3: Send STK push
         try:
             response = requests.post(
-                'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest',
+                '"https://api.safaricom.co.ke/mpesa/stkpush/v1/processrequest"',
                 json=payload,
                 headers=headers
             )
             response.raise_for_status()
-            return HttpResponse(f"STK Push Initiated. Check your phone.<br><pre>{response.text}</pre>")
+            return HttpResponse(f"✅ STK Push Initiated. Check your phone.<br><pre>{response.text}</pre>")
         except Exception as e:
-            return HttpResponse(f"Error during STK Push: {e}<br><pre>{response.text}</pre>", status=500)
+            return HttpResponse(f"❌ Error during STK Push: {e}<br><pre>{response.text}</pre>", status=500)
 
     return redirect('home')

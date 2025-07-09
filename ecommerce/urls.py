@@ -1,10 +1,19 @@
 from django.contrib import admin
 from django.urls import path
-from store import views  # Import your app's views
-from django.conf.urls.static import static
+from store import views
 from django.conf import settings
+from django.conf.urls.static import static
 from store.views import login_view, register_view, payments_page
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+# ✅ Temporary one-time superuser route
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'admin1234')
+        return HttpResponse("✅ Superuser created successfully!")
+    return HttpResponse("⚠️ Superuser already exists.")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -18,9 +27,12 @@ urlpatterns = [
     # ✅ Payment flow routes
     path('payments/', views.payments_page, name='payments'),
     path('stk_push/', views.stk_push, name='stk_push'),
+
+    # ✅ Temporary admin creation route
+    path('create-admin/', create_admin),
 ]
 
-# ✅ Serve media files during development
-urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# ✅ Serve static and media files in development
 if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
