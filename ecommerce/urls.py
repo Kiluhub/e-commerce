@@ -8,13 +8,6 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 
-# ✅ Temporary one-time superuser route
-def create_admin(request):
-    if not User.objects.filter(username='admin').exists():
-        User.objects.create_superuser('admin', 'admin@example.com', 'admin1234')
-        return HttpResponse("✅ Superuser created successfully!")
-    return HttpResponse("⚠️ Superuser already exists.")
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', login_required(views.home), name='home'),
@@ -33,6 +26,7 @@ urlpatterns = [
 ]
 
 # ✅ Serve static and media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
