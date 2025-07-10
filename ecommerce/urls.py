@@ -22,11 +22,18 @@ urlpatterns = [
     path('stk_push/', views.stk_push, name='stk_push'),
 
     # ✅ Temporary admin creation route
-    path('create-admin/', create_admin),
+    path('create-admin/', login_required(create_admin)),
 ]
 
 # ✅ Serve static and media files in development
-
-
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+# ✅ Define the create_admin function temporarily
+def create_admin(request):
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@example.com', 'adminpassword')
+        return HttpResponse("Admin user created successfully.")
+    else:
+        return HttpResponse("Admin user already exists.")
